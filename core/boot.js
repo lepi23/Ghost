@@ -144,9 +144,11 @@ async function initServices({config}) {
     // We pass the themeService API version here, so that the frontend services are slightly less tightly-coupled
     routing.bootstrap.start(themeService.getApiVersion());
     const settings = require('./server/services/settings');
+    
     const frontendSettings = require('./frontend/services/settings');
     const getRoutesHash = () => frontendSettings.getCurrentHash('routes');
     await settings.syncRoutesHash(getRoutesHash);
+    
     debug('End: Dynamic Routing');
 
     debug('Begin: Services');
@@ -158,7 +160,8 @@ async function initServices({config}) {
     const appService = require('./frontend/services/apps');
     const limits = require('./server/services/limits');
     const scheduling = require('./server/adapters/scheduling');
-
+    const stats = require('./server/services/stats')
+    
     const urlUtils = require('./shared/url-utils');
 
     await Promise.all([
@@ -168,6 +171,7 @@ async function initServices({config}) {
         mega.listen(),
         webhooks.listen(),
         appService.init(),
+        stats.init(),
         limits.init(),
         scheduling.init({
             // NOTE: When changing API version need to consider how to migrate custom scheduling adapters

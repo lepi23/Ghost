@@ -8,6 +8,7 @@ const settingsCache = require('../../../server/services/settings/cache');
 const labs = require('../../../server/services/labs');
 const activeTheme = require('./active');
 const preview = require('./preview');
+const stats = require('../../../server/services/stats');
 
 // ### Ensure Active Theme
 // Ensure there's a properly set & mounted active theme before attempting to serve a site request
@@ -91,6 +92,7 @@ function updateGlobalTemplateOptions(req, res, next) {
     // @TODO: decouple theme layer from settings cache using the Content API
     const siteData = getSiteData(req);
     const labsData = labs.getAll();
+    const statsData = stats.getAll();
 
     const themeData = {
         posts_per_page: activeTheme.get().config('posts_per_page'),
@@ -106,6 +108,7 @@ function updateGlobalTemplateOptions(req, res, next) {
                 blog: siteData,
                 site: siteData,
                 labs: labsData,
+                stats: statsData,
                 config: themeData,
                 price: priceData
             }

@@ -2,6 +2,7 @@ const should = require('should');
 const sinon = require('sinon');
 const hbs = require('../../../../core/frontend/services/themes/engine');
 const themes = require('../../../../core/frontend/services/themes');
+const stats = require('../../../../core/server/services/stats');
 // is only exposed via themes.getActive()
 const activeTheme = require('../../../../core/frontend/services/themes/active');
 const settingsCache = require('../../../../core/server/services/settings/cache');
@@ -35,6 +36,7 @@ describe('Themes middleware', function () {
     let fakeActiveThemeName;
     let fakeSiteData;
     let fakeLabsData;
+    let fakeStatsData;
 
     beforeEach(function () {
         req = {app: {}, header: () => { }};
@@ -48,6 +50,8 @@ describe('Themes middleware', function () {
         fakeActiveThemeName = 'bacon-sensation';
 
         fakeSiteData = {};
+
+        fakeStatsData = {};
 
         fakeLabsData = {
             // labs data is deep cloned,
@@ -65,6 +69,9 @@ describe('Themes middleware', function () {
 
         sandbox.stub(settingsCache, 'getPublic')
             .returns(fakeSiteData);
+
+        sandbox.stub(stats, 'getAll')
+            .returns(fakeStatsData);
 
         sandbox.stub(hbs, 'updateTemplateOptions');
     });
@@ -121,7 +128,8 @@ describe('Themes middleware', function () {
             const templateOptions = hbs.updateTemplateOptions.firstCall.args[0];
             const data = templateOptions.data;
 
-            data.should.be.an.Object().with.properties('site', 'labs', 'config');
+            //data.should.be.an.Object().with.properties('site', 'labs', 'config');
+            data.should.be.an.Object().with.properties('site', 'labs', 'config', 'stats');
 
             // Check Theme Config
             data.config.should.be.an.Object()
@@ -134,6 +142,8 @@ describe('Themes middleware', function () {
             should.deepEqual(data.labs, fakeLabsData);
 
             should.equal(data.site, fakeSiteData);
+            console.log(data.site)
+            should.equal(data.stats, fakeStatsData);
 
             done();
         });
